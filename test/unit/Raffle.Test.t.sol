@@ -1,6 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
-import {Test , console2} from "forge-std/Test.sol";
+
+import {Test, console2} from "forge-std/Test.sol";
 import {Raffle} from "src/Raffle.sol";
 import {HelperConfig} from "script/HelperConfig.s.sol";
 import {DeployRaffle} from "script/DeployRaffle.s.sol";
@@ -9,26 +10,26 @@ import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VR
 import {LinkToken} from "../../test/mocks/LinkToken.sol";
 import {CodeConstants} from "../../script/HelperConfig.s.sol";
 
+contract RaffleTest is CodeConstants, Test {
+    Raffle public raffle;
+    HelperConfig public helperConfig;
 
-contract RaffleTest is CodeConstants , Test {
-Raffle public raffle;
-        HelperConfig public helperConfig;
+    address vrfCoordinatorV2_5;
 
-        address  vrfCoordinatorV2_5;
-        
-        uint256 subscriptionId;
-        uint256 entranceFee;
-        bytes32 gasLane;
-        uint32 callbackGasLimit;
-        uint256 interval;
+    uint256 subscriptionId;
+    uint256 entranceFee;
+    bytes32 gasLane;
+    uint32 callbackGasLimit;
+    uint256 interval;
 
-address public PLAYER = makeAddr("player");
+    address public PLAYER = makeAddr("player");
 
-uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
+    uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
 
     event RaffleEntered(address indexed player);
     event WinnerPicked(address indexed winner);
-  function setUp() external {
+
+    function setUp() external {
         DeployRaffle deployer = new DeployRaffle();
         (raffle, helperConfig) = deployer.deployContract();
         HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
@@ -44,11 +45,11 @@ uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
         vm.deal(PLAYER, STARTING_PLAYER_BALANCE); // Fund the PLAYER address
     }
 
+    function testRaffleInitializeInOpenState() public view {
+        assert(raffle.getRaffleState() == Raffle.RaffleState.OPEN);
+    }
 
- function testRaffleInitializeInOpenState() public view {
-   assert (raffle.getRaffleState() == Raffle.RaffleState.OPEN);
- }
-     function testRaffleRevertsWHenYouDontPayEnough() public {
+    function testRaffleRevertsWHenYouDontPayEnough() public {
         // Arrange
         vm.prank(PLAYER);
         // Act / Assert
@@ -56,20 +57,21 @@ uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
         raffle.enterRaffle();
     }
 
- function testRaffleRecordsPlayersWhenTheyEnter() public {
-    
-    vm.prank(PLAYER);
-    raffle.enterRaffle{value: entranceFee}();
-    address playerRecorded = raffle.getPlayer(0);
-    assert(playerRecorded == PLAYER);
- }
- function testEnteringRaffleEmitsEvent() public {
-    vm.prank(PLAYER);
-    vm.expectEmit(true, false, false, false, address(raffle));
-    emit RaffleEntered(PLAYER);
-    raffle.enterRaffle{value: entranceFee}();
-}
- function testDontAllowPlayersToEnterWhileRaffleIsCalculating() public {
+    function testRaffleRecordsPlayersWhenTheyEnter() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        address playerRecorded = raffle.getPlayer(0);
+        assert(playerRecorded == PLAYER);
+    }
+
+    function testEnteringRaffleEmitsEvent() public {
+        vm.prank(PLAYER);
+        vm.expectEmit(true, false, false, false, address(raffle));
+        emit RaffleEntered(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+    }
+
+    function testDontAllowPlayersToEnterWhileRaffleIsCalculating() public {
         // Arrange
         vm.prank(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
@@ -83,12 +85,11 @@ uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
         raffle.enterRaffle{value: entranceFee}();
     }
 
-      /*//////////////////////////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
                               CHECKUPKEEP
     //////////////////////////////////////////////////////////////*/
 
-
-     function testCheckUpkeepReturnsFalseIfItHasNoBalance() public {
+    function testCheckUpkeepReturnsFalseIfItHasNoBalance() public {
         // Arrange
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
@@ -103,7 +104,7 @@ uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
     function testCheckUpkeepReturnsFalseIfRaffleIsntOpen() public {
         // Arrange
         vm.prank(PLAYER);
-        raffle.enterRaffle{value:entranceFee}();
+        raffle.enterRaffle{value: entranceFee}();
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
         raffle.performUpkeep("");
@@ -169,8 +170,8 @@ uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
         );
         raffle.performUpkeep("");
     }
-   
-      function testPerformUpkeepUpdatesRaffleStateAndEmitsRequestId() public {
+
+    function testPerformUpkeepUpdatesRaffleStateAndEmitsRequestId() public {
         // Arrange
         vm.prank(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
@@ -190,8 +191,6 @@ uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
         assert(uint256(raffleState) == 1); // 0 = open, 1 = calculating
     }
 
-
-
     /*//////////////////////////////////////////////////////////////
                            FULFILLRANDOMWORDS
     //////////////////////////////////////////////////////////////*/
@@ -210,7 +209,7 @@ uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
         _;
     }
 
-    function testFulfillRandomWordsCanOnlyBeCalledAfterPerformUpkeep() public raffleEntered  {
+    function testFulfillRandomWordsCanOnlyBeCalledAfterPerformUpkeep() public raffleEntered {
         // Arrange
         // Act / Assert
         vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
@@ -258,5 +257,4 @@ uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
         assert(winnerBalance == startingBalance + prize);
         assert(endingTimeStamp > startingTimeStamp);
     }
-
 }
