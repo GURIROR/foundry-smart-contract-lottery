@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Foundry
-        uses: foundry-rs/foundry-toolchain@v1
+        uses: foundry-rs/setup-foundry@v1
         with:
           version: latest
 
@@ -25,7 +25,7 @@ jobs:
       - name: Check formatting
         run: forge fmt --check
 
-      - name: Only build Raffle.sol (exclude mocks in lib)
+      - name: Build only Raffle.sol
         run: forge build --contracts src/Raffle.sol
 
       - name: Run tests
