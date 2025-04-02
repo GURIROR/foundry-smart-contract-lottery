@@ -1,66 +1,75 @@
-## Foundry
+# 🎰 Foundry Smart Contract Lottery
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+A decentralized lottery system built with Solidity and Foundry. Integrates Chainlink VRF for provable randomness and Chainlink Automation for automated execution. Built as part of the Cyfrin Updraft security and development course.
 
-Foundry consists of:
+## Features
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+- Chainlink VRF v2 for randomness  
+- Chainlink Automation to automate winner selection  
+- Configurable for multiple networks (local, testnet, mainnet)  
+- Foundry-based testing framework  
+- Secure and optimized smart contract design  
 
-## Documentation
+## Getting Started
 
-https://book.getfoundry.sh/
+### Prerequisites
 
-## Usage
+- Foundry (https://book.getfoundry.sh/getting-started/installation)  
+- Git  
+- RPC provider like Infura or Alchemy  
+- A funded wallet and private key  
 
-### Build
+### Clone & Install
 
-```shell
-$ forge build
-```
+git clone https://github.com/GURIROR/foundry-smart-contract-lottery.git  
+cd foundry-smart-contract-lottery  
+forge install
 
-### Test
+### Environment Setup
 
-```shell
-$ forge test
-```
+Create a `.env` file in your root folder with the following content:
 
-### Format
+SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/YOUR_PROJECT_ID  
+PRIVATE_KEY=your_private_key  
+ETHERSCAN_API_KEY=your_etherscan_api_key  
+CHAINLINK_SUBSCRIPTION_ID=your_subscription_id
 
-```shell
-$ forge fmt
-```
+Never share your real `.env` file. Use `.env.example` to show the structure.
 
-### Gas Snapshots
+### Compile Contracts
 
-```shell
-$ forge snapshot
-```
+forge build
 
-### Anvil
+### Run Tests
 
-```shell
-$ anvil
-```
+forge test -vv
 
-### Deploy
+### Deploy (example: Sepolia)
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
+forge script script/DeployRaffle.s.sol:DeployRaffle --rpc-url $SEPOLIA_RPC_URL --broadcast --verify -vvvv
 
-### Cast
+## Project Structure
 
-```shell
-$ cast <subcommand>
-```
+script/           - Deployment scripts  
+src/              - Solidity smart contracts  
+test/             - Unit and staging tests  
+foundry.toml      - Foundry configuration  
+.env.example      - Environment variable structure  
 
-### Help
+## Learning Goals
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+- Understand Chainlink VRF and Automation integration  
+- Write full test coverage in Solidity  
+- Structure upgradable, secure, audit-friendly contracts  
+- Practice Foundry CLI workflows and deployment  
+
+## License
+
+MIT © 2025 
+
+## Acknowledgements
+
+- Cyfrin Updraft Course  
+- Foundry by Paradigm  
+- Chainlink Documentation
+
