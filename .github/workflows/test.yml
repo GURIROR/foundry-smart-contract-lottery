@@ -15,9 +15,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Foundry
-        uses: foundry-rs/setup-foundry@v1
+        uses: dapphub/foundry-toolchain@v1
         with:
-          version: latest
+          version: nightly
 
       - name: Install dependencies
         run: forge install
