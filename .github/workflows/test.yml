@@ -1,10 +1,10 @@
-name: test
+name: Foundry CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 env:
@@ -17,19 +17,24 @@ jobs:
       matrix:
         solc: ["0.8.19", "0.8.20"]  # Test multiple Solidity versions
 
-    name: Foundry project
+    name: Foundry Project CI
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
+      # Step 2: Install Foundry
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
 
-      - name: Cache build
+      # Step 3: Cache build artifacts
+      - name: Cache build artifacts
         uses: actions/cache@v3
         with:
           path: |
@@ -39,18 +44,28 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-forge-
 
-      - name: Run Forge build
+      # Step 4: Build the project
+      - name: Build the project
         run: |
           forge --version
           forge build --sizes
         id: build
 
-      - name: Run Forge tests
+      # Step 5: Run tests with gas report
+      - name: Run tests
         run: |
           forge test -vvv --gas-report
         id: test
 
-      - name: Run Coverage
+      # Step 6: Run coverage
+      - name: Run coverage
         run: |
           forge coverage --report lcov
         id: coverage
+
+      # Step 7: Upload coverage report
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: lcov.info
